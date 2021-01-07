@@ -11,6 +11,6 @@
     (set
       (for [a     n
             b     n
-            :when (and (not= a b) (= 2020 (+ b a)))]
+            :when (= 2020 (+ b a))]
         (* a b)))))
 ;; => 145875
