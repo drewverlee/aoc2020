@@ -1,1 +1,2 @@
-{:paths ["inputs" "src"]}
+{:paths ["inputs" "src" "grammars"]
+ :deps  {instaparse {:mvn/version "1.4.10"}}}
