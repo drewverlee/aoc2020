@@ -52,12 +52,8 @@
   (map #(apply hash-map %))
   (map keys)
   (map set)
-  (reduce
-    (fn [c p]
-      (if (set/superset? p #{"hgt" "pid" "byr" "eyr" "iyr" "hcl"})
-        (inc c)
-        c))
-    0))
+  (filter #(set/superset? % #{"hgt" "pid" "byr" "eyr" "iyr" "hcl" "ecl"} ))
+  count)
 ;; => 2
 
 ;; ------------- part 1 -----------------------
@@ -69,10 +65,6 @@
   (map #(apply hash-map %))
   (map keys)
   (map set)
-  (reduce
-    (fn [c p]
-      (if (set/superset? p #{"hgt" "pid" "byr" "eyr" "iyr" "hcl"})
-        (inc c)
-        c))
-    0))
-;; => 234
+  (filter #(set/superset? % #{"hgt" "pid" "byr" "eyr" "iyr" "hcl" "ecl"} ))
+  count)
+;; => 226
