@@ -71,8 +71,7 @@
               (let [parsed ((get unit->parse unit identity) v) ]
                 (if-not (insta/failure? parsed)
                   (assoc nm unit parsed)
-                  nm))
-              )
+                  nm)))
             {}
             %))
     ;; remove invalid values
@@ -83,7 +82,6 @@
                 nm))
             {}
             %))
-
     ;;at which point we can just check our remaining valid keys are there.
     (map keys)
     (map set)
