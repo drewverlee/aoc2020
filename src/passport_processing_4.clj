@@ -51,7 +51,7 @@
     (map #(reduce-kv
             (fn [nm unit v]
               (let [parsed ((get unit->parse unit identity) v) ]
-                (if-not (insta/failure? parsed)
+                (if-not (i/failure? parsed)
                   (assoc nm unit parsed)
                   nm)))
             {}
