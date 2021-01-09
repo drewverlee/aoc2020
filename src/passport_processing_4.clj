@@ -2,25 +2,11 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [instaparse.core :as i]
-            [clojure.set :as set]
-            [instaparse.core :as insta]))
+            [clojure.set :as set]))
 
 ;; --- Day 4: Passport Processing ---
 
-;; ----------- example -----------
-
-(->>
-  (-> "input-4-example"  io/resource  slurp (str/split #"\n\n"))
-  (map #(str/split % #":|\n| "))
-  (map #(apply hash-map %))
-  (map keys)
-  (map set)
-  (filter #(set/superset? % #{"hgt" "pid" "byr" "eyr" "iyr" "hcl" "ecl"} ))
-  count)
-;; => 2
-
 ;; ------------- part 1 -----------------------
-
 
 (->>
   (-> "input-4"  io/resource  slurp (str/split #"\n\n"))
@@ -32,6 +18,7 @@
 
   count)
 ;; => 226
+
 
 ;; ------------- part 2 -----------------------
 
