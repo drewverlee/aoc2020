@@ -1,48 +1,11 @@
 (ns passport-processing-4
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [clojure.set :as set]))
+            [instaparse.core :as i]
+            [clojure.set :as set]
+            [instaparse.core :as insta]))
 
 ;; --- Day 4: Passport Processing ---
-
-;; The automatic passport scanners are slow because they're having trouble detecting which passports have all required fields. The expected fields are as follows:
-
-;; byr (Birth Year)
-;; iyr (Issue Year)
-;; eyr (Expiration Year)
-;; hgt (Height)
-;; hcl (Hair Color)
-;; ecl (Eye Color)
-;; pid (Passport ID)
-;; cid (Country ID)
-
-;; Passport data is validated in batch files (your puzzle input). Each passport is represented as a sequence of key:value pairs separated by spaces or newlines. Passports are separated by blank lines.
-
-;; Here is an example batch file containing four passports:
-
-;; ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
-;; byr:1937 iyr:2017 cid:147 hgt:183cm
-
-;; iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884
-;; hcl:#cfa07d byr:1929
-
-;; hcl:#ae17e1 iyr:2013
-;; eyr:2024
-;; ecl:brn pid:760753108 byr:1931
-;; hgt:179cm
-
-;; hcl:#cfa07d eyr:2025 pid:166559648
-;; iyr:2011 ecl:brn hgt:59in
-
-;; The first passport is valid - all eight fields are present. The second passport is invalid - it is missing hgt (the Height field).
-
-;; The third passport is interesting; the only missing field is cid, so it looks like data from North Pole Credentials, not a passport at all! Surely, nobody would mind if you made the system temporarily ignore missing cid fields. Treat this "passport" as valid.
-
-;; The fourth passport is missing two fields, cid and byr. Missing cid is fine, but missing any other field is not, so this passport is invalid.
-
-;; According to the above rules, your improved system would report 2 valid passports.
-
-;; Count the number of valid passports - those that have all required fields. Treat cid as optional. In your batch file, how many passports are valid?
 
 ;; ----------- example -----------
 
@@ -66,5 +29,65 @@
   (map keys)
   (map set)
   (filter #(set/superset? % #{"hgt" "pid" "byr" "eyr" "iyr" "hcl" "ecl"} ))
+
   count)
 ;; => 226
+
+;; ------------- part 2 -----------------------
+
+(let [->c          (fn [[p t]] (fn [i] (i/transform t ((i/parser p) i))))
+      ->year       (->c ["NUMBER = #'[0-9]+'" {:NUMBER #(Integer/parseInt %) }])
+      ->hgt        (->c ["<HEIGHT> = NUMBER UNIT
+                          NUMBER  = #'[0-9]+'
+                          UNIT    = #'[a-zA-Z]+'"
+                         {:NUMBER #(Integer/parseInt %)
+                          :UNIT   identity}])
+      ->hcl        (->c ["<HCL> = '#' A A A A A A
+                          <A>   = #'[a-zA-Z0-9]'"])
+      ->pid        (->c ["<PID> =  N N N N N N N N N
+                          <N>   = #'[0-9]'"])
+      unit->parse  {"byr" ->year
+                    "iyr" ->year
+                    "eyr" ->year
+                    "hgt" ->hgt
+                    "hcl" ->hcl
+                    "pid" ->pid}
+      unit->valid? {"byr" #(<= 1920 % 2002)
+                    "iyr" #(<= 2010 % 2020)
+                    "eyr" #(<= 2010 % 2030)
+                    "hgt" (fn [[height unit]]
+                            (case unit
+                              "cm" (<= 150 height  193)
+                              "in" (<= 59 height 76)
+                              false))
+                    "ecl" #{"amb" "blu" "brn" "gry" "grn" "hzl" "oth"}}]
+  (->>
+    (-> "input-4"  io/resource  slurp (str/split #"\n\n"))
+    (map #(str/split % #":|\n| "))
+    (map #(apply hash-map %))
+    ;; only keep parsed key-value pairs
+    (map #(reduce-kv
+            (fn [nm unit v]
+              (let [parsed ((get unit->parse unit identity) v) ]
+                (if-not (insta/failure? parsed)
+                  (assoc nm unit parsed)
+                  nm))
+              )
+            {}
+            %))
+    ;; remove invalid values
+    (map #(reduce-kv
+            (fn [nm unit v]
+              (if ((get unit->valid? unit identity) (% unit))
+                (assoc nm unit v)
+                nm))
+            {}
+            %))
+
+    ;;at which point we can just check our remaining valid keys are there.
+    (map keys)
+    (map set)
+    (filter #(set/superset? % #{"hgt" "pid" "byr" "eyr" "iyr" "hcl" "ecl"} ))
+    count
+    ))
+;; => 160
