@@ -22,21 +22,18 @@
 
 (let [->c          (fn [[p t]] (fn [i] (i/transform t ((i/parser p) i))))
       ->year       (->c ["NUMBER = #'[0-9]+'" {:NUMBER #(Integer/parseInt %) }])
-      ->hgt        (->c ["<HEIGHT> = NUMBER UNIT
-                          NUMBER  = #'[0-9]+'
-                          UNIT    = #'[a-zA-Z]+'"
-                         {:NUMBER #(Integer/parseInt %)
-                          :UNIT   identity}])
-      ->hcl        (->c ["<HCL> = '#' A A A A A A
-                          <A>   = #'[a-zA-Z0-9]'"])
-      ->pid        (->c ["<PID> =  N N N N N N N N N
-                          <N>   = #'[0-9]'"])
       unit->parse  {"byr" ->year
                     "iyr" ->year
                     "eyr" ->year
-                    "hgt" ->hgt
-                    "hcl" ->hcl
-                    "pid" ->pid}
+                    "hgt" (->c ["<HEIGHT> = NUMBER UNIT
+                          NUMBER  = #'[0-9]+'
+                          UNIT    = #'[a-zA-Z]+'"
+                                {:NUMBER #(Integer/parseInt %)
+                                 :UNIT   identity}])
+                    "hcl" (->c ["<HCL> = '#' A A A A A A
+                          <A>   = #'[a-zA-Z0-9]'"])
+                    "pid" (->c ["<PID> =  N N N N N N N N N
+                          <N>   = #'[0-9]'"])}
       unit->valid? {"byr" #(<= 1920 % 2002)
                     "iyr" #(<= 2010 % 2020)
                     "eyr" #(<= 2010 % 2030)
