@@ -15,10 +15,8 @@
   (map keys)
   (map set)
   (filter #(set/superset? % #{"hgt" "pid" "byr" "eyr" "iyr" "hcl" "ecl"} ))
-
   count)
 ;; => 226
-
 
 ;; ------------- part 2 -----------------------
 
