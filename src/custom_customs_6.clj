@@ -17,7 +17,7 @@
   (apply +))
 ;; => 6680
 
-;; ---------- part 2 ----------------------
+;; --------- part 2  ------------
 
 (->> "input-6"
   io/resource
@@ -25,9 +25,13 @@
   str/split-lines
   (partition-by #(str/blank? %))
   (remove #(= [""] %))
-  (map #(hash-map :a (str/join "" %) :g (count %)))
-  (map #(assoc % :d (-> % :a frequencies)))
-  (map (fn [{:keys [d g] :as m}] (assoc m :yes (->> g ((group-by val d)) count))))
-  (map :yes)
-  (apply +))
+  (reduce
+    (fn [c n]
+      (+ c (-> n
+             count
+             (get (group-by val (frequencies (str/join "" n ))))
+             count) ))
+    0))
 ;; => 3117
+
+
