@@ -2,10 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]))
 
-;; --- Day 6: Custom Customs ---
-
 ;; ---- part 1 --------
-
 (->> "input-6"
   io/resource
   slurp
@@ -18,7 +15,6 @@
 ;; => 6680
 
 ;; --------- part 2  ------------
-
 (->> "input-6"
   io/resource
   slurp
@@ -33,5 +29,3 @@
              count) ))
     0))
 ;; => 3117
-
-
