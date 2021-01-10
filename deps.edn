@@ -1,2 +1,3 @@
 {:paths ["inputs" "src" "grammars"]
- :deps  {instaparse {:mvn/version "1.4.10"}}}
+ :deps  {instaparse                     {:mvn/version "1.4.10"}
+         org.clojure/math.numeric-tower {:mvn/version "0.0.4"}}}
