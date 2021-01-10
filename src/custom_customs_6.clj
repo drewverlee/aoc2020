@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]))
 
-;; ---- part 1 --------
+;; --- Day 6: Custom Customs ---
+
 (->> "input-6"
   io/resource
   slurp
@@ -14,7 +15,8 @@
   (apply +))
 ;; => 6680
 
-;; --------- part 2  ------------
+;; --------- part 2 ------------
+
 (->> "input-6"
   io/resource
   slurp
@@ -23,7 +25,7 @@
   (remove #(= [""] %))
   (reduce
     (fn [c n]
-      (+ c (-> n
+      (+ c (->> n
              count
              (get (group-by val (frequencies (str/join "" n ))))
              count) ))
