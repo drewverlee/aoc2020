@@ -1,6 +1,9 @@
 (ns handy-haversacks-7
   (:require [clojure.java.io :as io]
             [instaparse.core :as insta]
+            [loom.graph :refer [weighted-digraph]]
+            [loom.alg :as alg ]
+            [loom.io :refer [view]]
             [clojure.string :as str]))
 
 
@@ -25,54 +28,20 @@
 ;; So, in this example, the number of bag colors that can eventually contain at
 ;; least one shiny gold bag is 4.
 
-
-(let [g    (->> "input-7-example"
-             io/resource
-             slurp
-             str/split-lines
-             (reduce
-               (fn [m l]
-                 (merge m
-                   (insta/transform
-                     {:COLOR     identity
-                      :S         (fn [c & r] {c (apply merge r)})
-                      :CBAG      (fn [n c] {c n})
-                      :BAG-COUNT #(Integer/parseInt %)
-                      :BAG       (fn [a b] (str/join " " [a b]))}
-                     ((insta/parser (io/resource "bag")) l))))
-               {}))
-      goal "shiny gold"
-      pop  (fn [l] (-> l vec pop))]
-  (loop [c        0
-         seen?    #{}
-         frontier (-> g (dissoc :a) keys)
-         has?     #{}
-         parent   nil]
-    (let [x (-> frontier vec peek)]
-      (cond
-        (nil? x)   c
-        (= goal x) (recur
-                     (inc c)
-                     (conj seen? x)
-                     (pop frontier)
-                     (conj has? parent)
-                     x)
-
-        (has? x)  (recur
-                    (inc c)
-                    seen?
-                    (pop frontier)
-                    has?
-                    x)
-        (seen? x) (recur
-                    c
-                    seen?
-                    (pop frontier)
-                    has?
-                    x)
-        :else     (recur
-                    c
-                    (conj seen? x)
-                    (concat (pop frontier) (-> x g keys))
-                    has?
-                    x)))))
+(as-> "input-7" x
+  (io/resource x)
+  (slurp x)
+  (str/split-lines x)
+  (mapcat (fn [l]
+            (insta/transform
+              {:COLOR     identity
+               :S         (fn [c & r] (for [[cbc n] r] [cbc c n]))
+               :CBAG      (fn [n c] [c n])
+               :BAG-COUNT #(Integer/parseInt %)
+               :BAG       (fn [a b] (str/join " " [a b]))}
+              ((insta/parser (io/resource "bag")) l))) x)
+  (apply weighted-digraph x)
+  (alg/bf-span x "shiny gold")
+  (vals x)
+  (map count x)
+  (apply + x))
