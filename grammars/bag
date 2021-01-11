@@ -1,0 +1,9 @@
+S = BAG W <"bags"> W <"contain"> W (<"no other bags"> |  [<",">? W? CBAG W O]?)* <".">
+BAG-COUNT = NUMBER
+<O> = (<"bags">|<"bag">)
+<NUMBER> = #'[0-9]+'
+BAG = COLOR  <W> COLOR
+CBAG = BAG-COUNT W BAG
+COLOR = WORD
+<W> = <#'\s+'>
+<WORD> =  #'[a-zA-Z]*'
